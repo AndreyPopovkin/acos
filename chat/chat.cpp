@@ -44,7 +44,11 @@ int max(int a, int b){
 
 
 
-pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+int min(int a, int b){
+
+  return (a < b ? a : b);
+
+}
 
 
 
@@ -158,7 +162,7 @@ void* waiting_for_input(void*){
 
       //pthread_mutex_lock(&lock);
 
-      while(semlock(SEMID, INDEX));
+      while(semlock(SEMID, INDEX)) usleep(1);
 
 
 
@@ -170,6 +174,8 @@ void* waiting_for_input(void*){
 
       int i;
 
+      tmp.resize(min(tmp.size(), BUFSIZE - 1));
+
       for(i = 0; i < tmp.size(); ++i)
 
         input[i] = tmp[i];
@@ -177,6 +183,8 @@ void* waiting_for_input(void*){
       input[tmp.size()] = '\0';
 
       DEBUG("GETTING INPUT %s\n", input);
+
+      if(tmp == "-exit") active_flag = 1;
 
       semfree(SEMID, INDEX);
 
@@ -190,23 +198,15 @@ void* waiting_for_input(void*){
 
 
 
-
-
 char to_income[BUFSIZE];
 
 
 
 int getmsg(int semid, int from){
 
-  //("!0\n");
-
-  //printf("getmsg\n");
-
   if(getval(semid, from + 3) != 0)
 
     return 0;
-
-  //printf("!1\n");
 
   if(getval(semid, 2) == 0) return 0;
 
@@ -222,15 +222,11 @@ int getmsg(int semid, int from){
 
   }
 
-  //printf("!\n");
-
   DEBUG("OPENED\n");
 
   int i;
 
   while(!semlock(semid, 2)){
-
-    //printf("!\n");
 
     for(i = 0; i < BUFSIZE; ++i)
 
@@ -334,19 +330,13 @@ int user(int index)  // index == 0, 1
 
     int status = pthread_create(&thread, NULL, waiting_for_input, 0);
 
-    //printf("!\n");
-
-    while(1){
+    while(active_flag){
 
       usleep(CHECK_DELAY);
-
-      //int err = pthread_mutex_trylock(&lock);
 
       if(!semlock(semid, index)){
 
         DEBUG("TRY TO WRITE\n");
-
-        //semlock(semid, index);
 
         semlock(semid, index + 3);
 
@@ -356,8 +346,6 @@ int user(int index)  // index == 0, 1
 
         int fd;
 
-        //printf("!\n");
-
         if ( (fd = open(NAMEDPIPE_NAME, O_WRONLY)) <= 0 ) {
 
           perror("open");
@@ -366,7 +354,7 @@ int user(int index)  // index == 0, 1
 
         }
 
-        DEBUG("WAITING OTHER SIDE\n");
+        DEBUG("WAITING FOR ANOTHER SIDE\n");
 
         write(fd, input, strlen(input));
 
@@ -380,17 +368,11 @@ int user(int index)  // index == 0, 1
 
         semfree(semid, index + 3);
 
-        //pthread_mutex_unlock(&lock);
-
         usleep(INPUT_DELAY * 2);
 
       }
 
-      //printf("!\n");
-
       getmsg(semid, index ^ 1);
-
-      //printf("STEP%d\n", i);
 
       ++i;
 
