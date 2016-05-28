@@ -73,6 +73,7 @@ char* map_it(std::string name, int begin, int size, int* file_descr){
 }
 
 void print_field(int num){
+    return;
 	int size_ = min(SIZE, 20);
 
 	/*
@@ -178,26 +179,24 @@ void work(int id, int it_num){
 	if(main_){
 		sem_post(sem[3]);
 	}
-
-	// тут разmmap
 }
 
 void init_sems(int suffix){
 	sem_unlink(((std::string)SEM_NAME + (std::string)"0" + std::to_string(suffix)).c_str());
 	sem[0] = sem_open(((std::string)SEM_NAME + (std::string)"0" + std::to_string(suffix)).c_str(), O_CREAT, ACCESSF, sem_init_[0]);
-	if(!sem) perror("sem_open0");
+	if(!sem[0]) perror("sem_open0");
 	sem_unlink(((std::string)SEM_NAME + (std::string)"1" + std::to_string(suffix)).c_str());
 	sem[1] = sem_open(((std::string)SEM_NAME + (std::string)"1" + std::to_string(suffix)).c_str(), O_CREAT, ACCESSF, sem_init_[1]);
-	if(!sem) perror("sem_open1");
+	if(!sem[1]) perror("sem_open1");
 	sem_unlink(((std::string)SEM_NAME + (std::string)"2" + std::to_string(suffix)).c_str());
 	sem[2] = sem_open(((std::string)SEM_NAME + (std::string)"2" + std::to_string(suffix)).c_str(), O_CREAT, ACCESSF, sem_init_[2]);
-	if(!sem) perror("sem_open2");
+	if(!sem[2]) perror("sem_open2");
 	sem_unlink(((std::string)SEM_NAME + (std::string)"3" + std::to_string(suffix)).c_str());
 	sem[3] = sem_open(((std::string)SEM_NAME + (std::string)"3" + std::to_string(suffix)).c_str(), O_CREAT, ACCESSF, sem_init_[3]);
-	if(!sem) perror("sem_open3");
+	if(!sem[3]) perror("sem_open3");
 	sem_unlink(((std::string)SEM_NAME + (std::string)"4" + std::to_string(suffix)).c_str());
 	sem[4] = sem_open(((std::string)SEM_NAME + (std::string)"4" + std::to_string(suffix)).c_str(), O_CREAT, ACCESSF, sem_init_[4]);
-	if(!sem) perror("sem_open4");
+	if(!sem[4]) perror("sem_open4");
 }
 
 void gen_field(int seed, int size = SIZE){
