@@ -23,31 +23,41 @@ void init_sems(int index_, int names_addition){//int index){
       puts("init0\n");
       sem_unlink(((std::string)SEM_NAME + (std::string)"0" + std::to_string(names_addition)).c_str());
       sem[0] = sem_open(((std::string)SEM_NAME + (std::string)"0" + std::to_string(names_addition)).c_str(), O_CREAT, ACCESSF, 1);
-      if(!sem) perror("sem_open0");
+      if(!sem[0])
+          perror("sem_open0");
       sem_unlink(((std::string)SEM_NAME + (std::string)"1" + std::to_string(names_addition)).c_str());
       sem[1] = sem_open(((std::string)SEM_NAME + (std::string)"1" + std::to_string(names_addition)).c_str(), O_CREAT, ACCESSF, 0);
-      if(!sem) perror("sem_open1");
+      if(!sem[1])
+          perror("sem_open1");
       sem_unlink(((std::string)SEM_NAME + (std::string)"2" + std::to_string(names_addition)).c_str());
       sem[2] = sem_open(((std::string)SEM_NAME + (std::string)"2" + std::to_string(names_addition)).c_str(), O_CREAT, ACCESSF, 0);
-      if(!sem) perror("sem_open2");
+      if(!sem[2])
+          perror("sem_open2");
       sem_unlink(((std::string)SEM_NAME + (std::string)"3" + std::to_string(names_addition)).c_str());
       sem[3] = sem_open(((std::string)SEM_NAME + (std::string)"3" + std::to_string(names_addition)).c_str(), O_CREAT, ACCESSF, 0);
-      if(!sem) perror("sem_open3");
+      if(!sem[3])
+          perror("sem_open3");
       sem_unlink(((std::string)SEM_NAME + (std::string)"4" + std::to_string(names_addition)).c_str());
       sem[4] = sem_open(((std::string)SEM_NAME + (std::string)"4" + std::to_string(names_addition)).c_str(), O_CREAT, ACCESSF, 0);
-      if(!sem) perror("sem_open4");
+      if(!sem[4])
+          perror("sem_open4");
   } else {
       puts("init1\n");
       sem[0] = sem_open(((std::string)SEM_NAME + (std::string)"0" + std::to_string(names_addition)).c_str(), 0);
-      if(!sem) perror("sem_open0");
+      if(!sem[0])
+          perror("sem_open0");
       sem[1] = sem_open(((std::string)SEM_NAME + (std::string)"1" + std::to_string(names_addition)).c_str(), 0);
-      if(!sem) perror("sem_open1");
+      if(!sem[1])
+          perror("sem_open1");
       sem[2] = sem_open(((std::string)SEM_NAME + (std::string)"2" + std::to_string(names_addition)).c_str(), 0);
-      if(!sem) perror("sem_open2");
+      if(!sem[2])
+          perror("sem_open2");
       sem[3] = sem_open(((std::string)SEM_NAME + (std::string)"3" + std::to_string(names_addition)).c_str(), 0);
-      if(!sem) perror("sem_open3");
+      if(!sem[3])
+          perror("sem_open3");
       sem[4] = sem_open(((std::string)SEM_NAME + (std::string)"4" + std::to_string(names_addition)).c_str(), 0);
-      if(!sem) perror("sem_open4");
+      if(!sem[4])
+          perror("sem_open4");
   }
 }
 
@@ -82,6 +92,7 @@ void* waiting_for_input(void*){
       sem_post(sem[0]);            // освобождаем fifo
       puts("~print");
     }
+    return NULL;
 }
 
 void print_sems(){
@@ -93,8 +104,6 @@ void print_sems(){
 int main (int argc, char ** argv) {
     if(argc != 3 || strlen(argv[1]) != 1 || (argv[1][0] < '0' || argv[1][0] > '2')){
       printf("%d\n", argc);
-      printf(argv[1]);
-      printf(argv[2]);
       printf("wrong parametres\n");
       printf("Using: chat 0 $id, for main user(server)\n");
       printf("chat 1 $id, for second user\n");
@@ -104,7 +113,8 @@ int main (int argc, char ** argv) {
 
     index_ = argv[1][0] - '0';
     int sem_name_suffix = std::stoi(std::string(argv[2]));
-    if(sem_name_suffix = 0) sem_name_suffix = STANDART_FIFO_NAME;
+    if (sem_name_suffix == 0)
+        sem_name_suffix = STANDART_FIFO_NAME;
     init_sems(index_, sem_name_suffix);
     pipe_name = (std::string)NAMEDPIPE_NAME + std::to_string(sem_name_suffix);
 
@@ -138,4 +148,5 @@ int main (int argc, char ** argv) {
       sem_post(sem[index_ + 3]);    // отчитываемся о принятии сообщения
       puts("~read");
     }
+    return status;
 }
