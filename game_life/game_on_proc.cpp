@@ -9,17 +9,21 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <algorithm>
 
 using std::cin;
 using std::cout;
 using std::ofstream;
 using std::ifstream;
 using std::string;
+using std::min;
 
-#define SIZE 8000
+//#define SIZE 8000
 #define NUM_OF_PROCESSES 8
 #define SEM_NAME "/semaphore"
 #define ACCESSF 0777
+
+int SIZE = 100;
 
 sem_t* sem[5];
 int sem_init_[5] = {0, 0, NUM_OF_PROCESSES, 0, 1};
@@ -69,15 +73,19 @@ char* map_it(std::string name, int begin, int size, int* file_descr){
 }
 
 void print_field(int num){
+	int size_ = min(SIZE, 20);
+
+	/*
 	if(SIZE > 50){
 		cout << "OK\n";
 		return;
 	}
+	*/
 	int save[2];
 	file_mem[0] = map_it("/tmp/field0", 0, SIZE*SIZE, save);
 	file_mem[1] = map_it("/tmp/field1", 0, SIZE*SIZE, save + 1);
-	for(int i = 0; i < SIZE; ++i){
-		for(int q = 0; q < SIZE; ++q)
+	for(int i = 0; i < size_; ++i){
+		for(int q = 0; q < size_; ++q)
 			cout << (file_mem[num % 2][i * SIZE + q] == 1 ? '#' : '-') << ' ';
 		cout << "\n";
 	}
@@ -206,13 +214,14 @@ void gen_field(int seed, int size = SIZE){
 }
 
 int main(int argc, char** argv){
-	if(argc != 3){
-		printf("Using: game_on_proc $N $SEED\n");
+	if(argc != 4){
+		printf("Using: game_on_proc $N $SEED $FIELD_SIZE\n");
 		printf("where N - number of iterations, SEED - seed for field generation\n");
 		return 0;
 	}
 	int seed = std::stoi(argv[2]);
 	int num = std::stoi(argv[1]);
+	SIZE = std::stoi(argv[3]);
 	gen_field(seed);
 	print_field(num);
 	srand(time(0));
